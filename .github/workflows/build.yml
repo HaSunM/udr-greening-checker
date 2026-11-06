@@ -1,0 +1,27 @@
+name: build
+on:
+  push:
+    branches: [main]
+    paths: ['data.json', 'template_v2.html', 'update_laws.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Publish laws-latest.json and rebuild tool
+        run: |
+          python update_laws.py publish
+          python update_laws.py build
+          mkdir -p docs && cp 全國都審綠化檢核工具.html docs/index.html && cp laws-latest.json docs/laws-latest.json && cp pwa/* docs/
+      - name: Commit outputs
+        run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: rebuild tool and laws-latest.json"
+          git push

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全國都審綠化檢核工具</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f5c46">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--g:#1f5c46;--g2:#2f7a5e;--g3:#e6f1ec;--bg:#f4f6f4;--card:#fff;--tx:#1d1f1d;--mu:#667;--ln:#d9ded9;--ok:#1a7f37;--ng:#b3261e;--wn:#9a6700;--in:#fffbe6;--hd:#1f5c46;--kpi:#fafbfa;--lawbg:#fafcfb;--okbg:#e3f5e8;--ngbg:#fde8e6;--wnbg:#fff4d6;--wnbd:#f0d58c;--nabg:#eee;--natx:#666;--ro:#eee;color-scheme:light}
+:root[data-theme=dark]{--g:#60cdff;--g2:#4cc2ff;--g3:#1f2a33;--bg:#202020;--card:#2b2b2b;--tx:#ffffff;--mu:#c5c5c5;--ln:#3a3a3a;--ok:#6ccb5f;--ng:#ff99a4;--wn:#fce100;--in:#1f1f1f;--hd:#1b1b1b;--kpi:#272727;--lawbg:#262626;--okbg:#1f3a1b;--ngbg:#442726;--wnbg:#433519;--wnbd:#6b5a22;--nabg:#333333;--natx:#c5c5c5;--ro:#2d2d2d;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--g:#60cdff;--g2:#4cc2ff;--g3:#1f2a33;--bg:#202020;--card:#2b2b2b;--tx:#ffffff;--mu:#c5c5c5;--ln:#3a3a3a;--ok:#6ccb5f;--ng:#ff99a4;--wn:#fce100;--in:#1f1f1f;--hd:#1b1b1b;--kpi:#272727;--lawbg:#262626;--okbg:#1f3a1b;--ngbg:#442726;--wnbg:#433519;--wnbd:#6b5a22;--nabg:#333333;--natx:#c5c5c5;--ro:#2d2d2d;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI Variable","Segoe UI","Microsoft JhengHei UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.55}
+header{background:var(--hd);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+header h1{font-size:17px;margin:0;font-weight:600}
+header .sub{font-size:12px;opacity:.85}
+header .sp{flex:1}
+.seg{display:inline-flex;border:1px solid rgba(255,255,255,.5);border-radius:6px;overflow:hidden}
+.seg button{background:transparent;color:#fff;border:0;padding:6px 12px;cursor:pointer;font-size:13px}
+.seg button.on{background:#fff;color:var(--g);font-weight:600}
+.steps{display:flex;background:var(--card);border-bottom:1px solid var(--ln);position:sticky;top:0;z-index:5}
+.steps button{flex:1;background:none;color:var(--mu);border:0;border-bottom:3px solid transparent;padding:10px 6px;cursor:pointer;font-size:14px;color:var(--mu)}
+.steps button.on{color:var(--g);border-color:var(--g);font-weight:600}
+.steps button.done{color:var(--g2)}
+.steps button:disabled{color:#bbb;cursor:not-allowed}
+main{max-width:1180px;margin:0 auto;padding:16px}
+.step{display:none}.step.on{display:block}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:16px;margin-bottom:14px}
+.card h2{font-size:16px;margin:0 0 10px;color:var(--g)}
+.card h3{font-size:14px;margin:14px 0 6px;color:var(--g2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 14px}
+label.f{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:3px}
+label.f input,label.f select{padding:6px 8px;border:1px solid var(--ln);border-radius:6px;font-size:14px;background:var(--in);color:var(--tx)}
+label.f input:read-only{background:var(--ro)}
+label.f .hint{font-size:11px;color:#889}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid var(--ln);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--g3);color:var(--g);font-weight:600}
+td select{min-width:84px}
+td input,td select{width:100%;padding:4px 6px;border:1px solid var(--ln);border-radius:4px;font-size:13px;background:var(--in)}
+td input[type=number]{text-align:right}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px}
+.kpi{border:1px solid var(--ln);border-radius:8px;padding:10px 12px;background:var(--kpi)}
+.kpi .l{font-size:12px;color:var(--mu)}.kpi .v{font-size:20px;font-weight:700}.kpi .s{font-size:12px;color:var(--mu)}.kpi .src{font-size:11px;margin-top:4px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}.wn{color:var(--wn)}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600}
+.badge.ok{background:var(--okbg);color:var(--ok)}.badge.ng{background:var(--ngbg);color:var(--ng)}.badge.wn{background:var(--wnbg);color:var(--wn)}.badge.na{background:var(--nabg);color:var(--natx)}
+.note{font-size:12px;color:var(--mu);margin:6px 0}
+.law{border-left:3px solid var(--g2);padding:6px 10px;margin:6px 0;background:var(--lawbg);font-size:13px}
+.law .t{font-weight:600}.law .a{color:var(--g2);font-weight:600;margin-right:6px}
+.uv{color:var(--ng);font-size:11px;margin-left:6px}.as{color:var(--wn);font-size:11px;margin-left:6px}
+a.src{color:var(--g2);font-size:11px;word-break:break-all}
+button.b{background:var(--g2);color:#fff;border:0;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:14px}
+button.b.o{background:var(--card);color:var(--g);border:1px solid var(--g)}
+button.b.sm{padding:3px 8px;font-size:12px}
+button.b:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.navrow{display:flex;justify-content:space-between;margin:12px 0 24px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tile{border:1px solid var(--ln);border-radius:8px;padding:10px;cursor:pointer;background:var(--card);text-align:left;color:var(--tx)}
+.tile:hover{border-color:var(--g2)}
+.tile.on{border:2px solid var(--g);background:var(--g3)}
+.tile .n{font-weight:600;font-size:15px}.tile .d{font-size:11px;color:var(--mu)}
+.lvl{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;margin-top:4px}
+.lvl.full{background:var(--okbg);color:var(--ok)}.lvl.partial{background:var(--wnbg);color:var(--wn)}.lvl.minimal{background:var(--nabg);color:var(--natx)}
+.region{font-weight:600;color:var(--g);margin:12px 0 6px}
+.mode-review .review-only{display:initial}.review-only{display:none}
+.cl-cat{font-weight:600;background:var(--g3);color:var(--g)}
+textarea{width:100%;min-height:60px;border:1px solid var(--ln);border-radius:6px;padding:6px;font-size:13px;font-family:inherit;background:var(--in)}
+.warnbox{background:var(--wnbg);border:1px solid var(--wnbd);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:10px}
+.infobox{background:var(--g3);border:1px solid var(--ln);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:10px}
+details{margin:8px 0}summary{cursor:pointer;color:var(--g2);font-weight:600}
+.hidden{display:none!important}
+dialog{border:1px solid var(--ln);border-radius:10px;max-width:640px;width:92vw;padding:18px;background:var(--card);color:var(--tx)}dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{margin-top:0;color:var(--g)}
+.mini{font-size:12px}
+@media print{:root{--bg:#fff;--card:#fff;--tx:#000;--mu:#555;--ln:#bbb;--in:#fff;--kpi:#fff;--lawbg:#fff;--g:#1f5c46;--g2:#2f7a5e;--g3:#eef3f0;--okbg:#e3f5e8;--ngbg:#fde8e6;--wnbg:#fff4d6;--nabg:#eee;--natx:#666;--ok:#1a7f37;--ng:#b3261e;--wn:#9a6700}header,.steps,.noprint{display:none!important}body{background:#fff}.card{break-inside:avoid;border:0;padding:0 0 12px}main{max-width:none;padding:0}#step-4{display:block!important}}
+.report h2{border-bottom:2px solid var(--g);padding-bottom:4px}
+:root[data-theme=dark] label.f input,:root[data-theme=dark] label.f select,:root[data-theme=dark] td input,:root[data-theme=dark] td select,:root[data-theme=dark] textarea{border-color:#3a3a3a;border-bottom-color:#9a9a9a;border-radius:4px}
+:root[data-theme=dark] label.f input:focus,:root[data-theme=dark] td input:focus,:root[data-theme=dark] textarea:focus{outline:none;border-bottom:2px solid var(--g)}
+:root[data-theme=dark] button.b{color:#000;font-weight:600;border-radius:4px}
+:root[data-theme=dark] button.b.o{color:var(--tx);background:#2d2d2d;border:1px solid #3a3a3a}
+:root[data-theme=dark] .card,:root[data-theme=dark] .kpi,:root[data-theme=dark] .tile{border-radius:6px}
+:root[data-theme=dark] .tile.on{border:1px solid var(--g);background:#1f2a33}
+:root[data-theme=dark] th{background:#333;color:#fff}
+:root[data-theme=dark] .cl-cat{background:#333;color:var(--g)}
+:root[data-theme=dark] .seg button.on{background:var(--g);color:#000}
+:root[data-theme=dark] .steps button.on{color:var(--g);border-color:var(--g)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) label.f input,:root:not([data-theme=light]) label.f select,:root:not([data-theme=light]) td input,:root:not([data-theme=light]) td select,:root:not([data-theme=light]) textarea{border-color:#3a3a3a;border-bottom-color:#9a9a9a;border-radius:4px}
+:root:not([data-theme=light]) button.b{color:#000;font-weight:600;border-radius:4px}:root:not([data-theme=light]) button.b.o{color:var(--tx);background:#2d2d2d;border:1px solid #3a3a3a}
+:root:not([data-theme=light]) .tile.on{border:1px solid var(--g);background:#1f2a33}:root:not([data-theme=light]) th{background:#333;color:#fff}:root:not([data-theme=light]) .cl-cat{background:#333;color:var(--g)}:root:not([data-theme=light]) .seg button.on{background:var(--g);color:#000}}
+
+:root[data-theme=mac-light]{--g:#007aff;--g2:#0a66d6;--g3:#eaf2ff;--bg:#f5f5f7;--card:#ffffff;--tx:#1d1d1f;--mu:#6e6e73;--ln:#d2d2d7;--ok:#248a3d;--ng:#d70015;--wn:#a06000;--in:#ffffff;--hd:#1d1d1f;--kpi:#f5f5f7;--lawbg:#f9f9fb;--okbg:#e4f7e9;--ngbg:#ffe5e5;--wnbg:#fff4d6;--wnbd:#f0d58c;--nabg:#e8e8ed;--natx:#6e6e73;--ro:#e8e8ed;color-scheme:light}
+:root[data-theme=mac-dark]{--g:#0a84ff;--g2:#409cff;--g3:#1c2838;--bg:#1c1c1e;--card:#2c2c2e;--tx:#f5f5f7;--mu:#98989d;--ln:#3a3a3c;--ok:#30d158;--ng:#ff453a;--wn:#ffd60a;--in:#1c1c1e;--hd:#161618;--kpi:#232325;--lawbg:#262628;--okbg:#1b3a26;--ngbg:#3f1f1e;--wnbg:#3d3416;--wnbd:#5c4f1c;--nabg:#3a3a3c;--natx:#98989d;--ro:#3a3a3c;color-scheme:dark}
+:root[data-theme^=mac] body{font-family:-apple-system,"SF Pro Text","SF Pro Display","PingFang TC","Helvetica Neue","Noto Sans TC",sans-serif;letter-spacing:-.01em}
+:root[data-theme^=mac] .card{border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04)}
+:root[data-theme=mac-dark] .card{box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+:root[data-theme^=mac] .kpi,:root[data-theme^=mac] .tile,:root[data-theme^=mac] .warnbox,:root[data-theme^=mac] .infobox,:root[data-theme^=mac] dialog{border-radius:12px}
+:root[data-theme^=mac] label.f input,:root[data-theme^=mac] label.f select,:root[data-theme^=mac] td input,:root[data-theme^=mac] td select,:root[data-theme^=mac] textarea{border-radius:8px}
+:root[data-theme^=mac] label.f input:focus,:root[data-theme^=mac] td input:focus,:root[data-theme^=mac] textarea:focus,:root[data-theme^=mac] select:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 30%,transparent)}
+:root[data-theme^=mac] button.b{border-radius:8px;background:var(--g);color:#fff;font-weight:600}
+:root[data-theme^=mac] button.b.o{background:var(--card);color:var(--g);border:1px solid var(--ln)}
+:root[data-theme^=mac] header{background:var(--hd);backdrop-filter:saturate(180%) blur(20px)}
+:root[data-theme^=mac] .seg{border-radius:8px;background:rgba(255,255,255,.12);border:0;padding:2px}
+:root[data-theme^=mac] .seg button{border-radius:6px}:root[data-theme^=mac] .seg button.on{background:#fff;color:#1d1d1f}
+:root[data-theme^=mac] .steps{background:color-mix(in srgb,var(--card) 85%,transparent);backdrop-filter:blur(20px)}
+:root[data-theme^=mac] .steps button.on{color:var(--g);border-color:var(--g)}
+:root[data-theme^=mac] .tile.on{border:2px solid var(--g);background:var(--g3)}
+:root[data-theme^=mac] th{background:var(--kpi);color:var(--tx);font-weight:600}
+:root[data-theme^=mac] .cl-cat{background:var(--kpi);color:var(--g)}
+:root[data-theme^=mac] .badge{border-radius:999px}
+:root[data-theme^=mac] .law{border-left-color:var(--g);border-radius:0 8px 8px 0}
+</style>
+<script>try{var t=localStorage.getItem('theme');if(t&&t!=='system')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+</head>
+<body>
+<header class="noprint">
+  <div><h1>全國都審綠化檢核工具</h1><div class="sub">選地區 → 選案件類型 → 細節 → 檢討｜綠覆率・喬木・綠化量 TCO₂・保水透水｜附原始法規出處</div></div>
+  <div class="sp"></div>
+  <div class="seg" id="modeSeg"><button data-m="self" class="on">設計自檢</button><button data-m="review">審查模式</button></div>
+  <button class="b o sm" style="background:transparent;color:#fff;border-color:#fff" onclick="cycleTheme()" id="themeBtn" title="切換外觀：跟隨系統 → Windows 深色 → 淺色 → Mac 淺色 → Mac 深色">◐ 外觀</button>
+  <button class="b o sm" style="background:transparent;color:#fff;border-color:#fff" onclick="openSettings()">⚙ 法規資料／更新</button>
+</header>
+<div class="steps noprint" id="steps">
+  <button data-s="1" class="on">① 選地區</button><button data-s="2" disabled>② 案件類型</button><button data-s="3" disabled>③ 細節</button><button data-s="4" disabled>④ 檢討</button>
+</div>
+<main>
+<div class="warnbox noprint">法規資料版本 <b id="dataVer"></b>。標示 <span class="ng">未查證</span> 者為未取得原文；<span class="wn">假設值</span> 為本工具近似。送審與審查意見請以各縣市法規系統現行條文、細部計畫土管要點及當期都審決議為準；每項判定均附原始出處可供核對。</div>
+
+<!-- STEP 1 -->
+<section class="step on" id="step-1">
+ <div class="card"><h2>① 選擇基地所在縣市</h2>
+  <p class="note">資料完整度：<span class="lvl full">完整</span> 有專法或都審規範數值；<span class="lvl partial">部分</span> 僅部分數值，其餘依細部計畫；<span class="lvl minimal">基本</span> 無專屬數值，依建築技術規則與土管要點（可在細節輸入土管規定值）。</p>
+  <div id="cityTiles"></div>
+ </div>
+ <div class="navrow"><span></span><button class="b" id="to2" disabled onclick="go(2)">下一步：案件類型 →</button></div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="step-2">
+ <div class="card"><h2>② 案件類型 <span class="note" id="cityLabel2"></span></h2>
+  <div class="tiles" id="caseTiles"></div>
+  <div id="classPick" class="hidden"><h3>綠覆率適用類別（依案件自動建議，可改）</h3><select id="classSel" style="padding:6px;font-size:14px;max-width:100%"></select><div class="note" id="classNote"></div></div>
+ </div>
+ <div class="navrow"><button class="b o" onclick="go(1)">← 上一步</button><button class="b" id="to3" disabled onclick="go(3)">下一步：填寫細節 →</button></div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="step-3">
+ <div class="card">
+  <h2>③ 基地資料 <span class="note" id="cityLabel3"></span></h2>
+  <div class="grid">
+   <label class="f">案名<input id="p_name" placeholder="例：○○區○○段集合住宅新建工程"></label>
+   <label class="f">申請人／設計單位<input id="p_owner"></label>
+   <label class="f">基地面積 A₀ (m²)<input type="number" id="A0" value="1200" min="0"></label>
+   <label class="f">法定建蔽率 r (%)<input type="number" id="r" value="60" min="0" max="100"></label>
+   <label class="f">法定空地面積 (m²)<input type="number" id="legalOpen" readonly><span class="hint">＝A₀ × (1 − r)</span></label>
+   <label class="f">建築面積 (m²)<input type="number" id="bArea" value="720" min="0"></label>
+   <label class="f">總樓地板面積 (m²)<input type="number" id="gfa" value="6000" min="0"></label>
+   <label class="f">地上層數<input type="number" id="floors" value="12" min="0"></label>
+   <label class="f">建築高度 (m)<input type="number" id="height" value="40" min="0"></label>
+   <label class="f">使用分區（固碳基準 β）<select id="zone"><option value="res">住宅區</option><option value="com">商業區</option><option value="ind">工業區（不含科學園區）</option><option value="school">學校用地／公園用地</option><option value="other">其他</option></select></label>
+   <label class="f">基地類型（喬木樹冠 Ai）<select id="aiSel"></select></label>
+   <label class="f" id="f_units">總戶數<input type="number" id="units" value="0" min="0"><span class="hint">高雄透天：喬木 ≥ 總戶數</span></label>
+   <label class="f">山坡地／地下水位 &lt;1 m<select id="slope"><option value="0">否</option><option value="1">是</option></select></label>
+  </div>
+  <div class="grid" id="planInputs" style="margin-top:10px"></div>
+ </div>
+
+ <div class="card" id="sec_cover">
+  <h2>植栽與綠覆 <span class="badge na" id="coverBase"></span></h2>
+  <div class="grid">
+   <label class="f" id="f_nonGreen">無法綠化面積 (m²)<input type="number" id="nonGreen" value="0" min="0"><span class="hint" id="nonGreenHint"></span></label>
+   <label class="f" id="f_roofBase">屋頂可綠化基準面積 (m²)<input type="number" id="roofBase" value="600" min="0"><span class="hint" id="roofBaseHint"></span></label>
+   <label class="f" id="f_pave">車道／人行步道／廣場舖面總面積 (m²)<input type="number" id="pave" value="200" min="0"></label>
+   <label class="f" id="f_setback">沿建築線退縮範圍面積 (m²)<input type="number" id="setbackArea" value="0" min="0"><span class="hint">桃園都審：每 25 m² 1 棵</span></label>
+  </div>
+  <h3>喬木清單（逐列檢視規格與覆土）</h3>
+  <table id="treeTbl"><thead><tr><th style="width:16%">樹種／名稱</th><th style="min-width:90px">類別</th><th>米高徑 cm</th><th>樹高 m</th><th>枝下高 m</th><th>株距 m</th><th>覆土 cm</th><th>樹穴 m²</th><th>數量</th><th>每株綠覆 m²</th><th>小計 m²</th><th>檢視</th><th></th></tr></thead><tbody></tbody></table>
+  <div class="row"><button class="b sm o" onclick="addTree()">＋ 新增喬木列</button><span class="note" id="treeNote"></span></div>
+  <h3>其他植栽與設施</h3>
+  <div class="grid">
+   <label class="f">灌木實際被覆面積 (m²)<input type="number" id="shrub" value="80" min="0"><span class="hint" id="shrubHint"></span></label>
+   <label class="f">灌木密度（株/m²）<input type="number" id="shrubDen" value="4" min="0"><span class="hint">北市／高雄每 m² ≥4 株；技術規範 ≥2 株</span></label>
+   <label class="f">草花／地被／草皮被覆面積 (m²)<input type="number" id="ground" value="120" min="0"></label>
+   <label class="f">透水植草磚舖設面積 (m²)<input type="number" id="paver" value="40" min="0"><span class="hint" id="paverHint"></span></label>
+   <label class="f">生態水池水面 (m²)<input type="number" id="pond" value="0" min="0"><span class="hint" id="pondHint"></span></label>
+   <label class="f">草溝／植生溝 (m²)<input type="number" id="swale" value="0" min="0"></label>
+   <label class="f" id="f_roofGreen">屋頂綠化實設面積 (m²)<input type="number" id="roofGreen" value="300" min="0"><span class="hint" id="roofHint"></span></label>
+   <label class="f" id="f_vert">陽臺／露臺／立體綠化面積 (m²)<input type="number" id="vert" value="0" min="0"></label>
+   <label class="f" id="f_roofShrub">屋頂綠化中灌木面積 (m²)<input type="number" id="roofShrub" value="100" min="0"><span class="hint">北市：屋頂綠覆中灌木 ≥30%</span></label>
+   <label class="f" id="f_soilShrub">地面灌木覆土 cm<input type="number" id="soilShrub" value="60" min="0"></label>
+   <label class="f" id="f_soilGround">地面地被覆土 cm<input type="number" id="soilGround" value="30" min="0"></label>
+   <label class="f" id="f_soilRoof">屋頂／人工地盤 喬木／灌木／地被 覆土 cm<input id="soilRoof" value="70/40/20" placeholder="70/40/20"></label>
+  </div>
+ </div>
+
+ <div class="card" id="sec_tco2">
+  <h2>綠化量指標（建築技術規則 §302）</h2>
+  <div class="grid">
+   <label class="f">執行綠化有困難之面積 Ap (m²)<input type="number" id="Ap" value="150" min="0"><span class="hint">消防救災空間、騎樓、基地內通路、預鑄污水設施等</span></label>
+   <label class="f">固碳當量基準值 β<input type="number" id="beta" step="0.01" readonly><span class="hint" id="betaHint"></span></label>
+   <label class="f">原生／誘鳥誘蝶植物採用比值 ra (0–1)<input type="number" id="ra" value="0.5" min="0" max="1" step="0.05"></label>
+   <label class="f">生態複層面積 (m²)<input type="number" id="eco" value="0" min="0"></label>
+   <label class="f">多年生蔓藤面積 (m²)<input type="number" id="vine" value="0" min="0"></label>
+   <label class="f">薄層／壁掛式綠化面積 (m²)<input type="number" id="thin" value="0" min="0"></label>
+  </div>
+ </div>
+
+ <div class="card" id="sec_water">
+  <h2>基地保水與透水</h2>
+  <div class="grid">
+   <label class="f">基地最終入滲率 f (m/s)<select id="fSel"><option value="1e-5">砂土／回填土 1×10⁻⁵</option><option value="1e-6">粉土 1×10⁻⁶</option><option value="1e-7">黏土 1×10⁻⁷</option><option value="custom">自訂</option></select></label>
+   <label class="f">自訂 f (m/s)<input type="number" id="fCustom" value="0.00001" step="0.000001"></label>
+   <label class="f">Q1 綠地／被覆地／草溝面積 A1 (m²)<input type="number" id="A1" value="300" min="0"></label>
+   <label class="f">Q2 透水鋪面面積 A2 (m²)<input type="number" id="A2" value="120" min="0"></label>
+   <label class="f">Q2 級配層厚 h (m，≤0.25)<input type="number" id="h2" value="0.2" step="0.05" min="0"></label>
+   <label class="f">Q2 通氣管式？<select id="q2vent"><option value="0">否（0.05）</option><option value="1">是（0.3）</option></select></label>
+   <label class="f">Q3 人工地盤花園土壤體積 V3 (m³)<input type="number" id="V3" value="60" min="0"><span class="hint">深度最多計 0.6 m</span></label>
+   <label class="f">Q4 貯集滲透空地面積 A4 (m²)<input type="number" id="A4" value="0" min="0"></label>
+   <label class="f">Q4 貯集體積 V4 (m³)<input type="number" id="V4" value="0" min="0"></label>
+   <label class="f">Q5 地下貯集滲透面積 A5 (m²)<input type="number" id="A5" value="0" min="0"></label>
+   <label class="f">Q5 有效貯集 r·V5 (m³)<input type="number" id="V5" value="0" min="0"><span class="hint">礫石 0.2、框架 0.9，請先乘好</span></label>
+   <label class="f">Q7 滲透陰井個數 n<input type="number" id="n7" value="0" min="0"></label>
+   <label class="f" id="f_permArea">實設透水鋪面面積 (m²)<input type="number" id="permArea" value="120" min="0"></label>
+   <label class="f" id="f_permTotal">基地透水面積合計（含綠地）(m²)<input type="number" id="permTotal" value="420" min="0"></label>
+   <label class="f" id="f_walk">人行步道面積 (m²)<input type="number" id="walk" value="80" min="0"></label>
+   <label class="f" id="f_walkPerm">人行步道透水鋪面面積 (m²)<input type="number" id="walkPerm" value="80" min="0"></label>
+   <label class="f" id="f_rainCap">實設雨水貯留容量 (m³)<input type="number" id="rainCap" value="0" min="0"></label>
+   <label class="f" id="f_excav">地下開挖面積 (m²)<input type="number" id="excav" value="0" min="0"></label>
+  </div>
+ </div>
+
+ <details class="card"><summary>輔助換算（比例尺面積、灌木株數、株距、覆土土方）</summary>
+  <div class="grid" style="margin-top:8px">
+   <label class="f">圖上量測長 (cm)<input type="number" id="sc_l" value="10"></label>
+   <label class="f">圖上量測寬 (cm)<input type="number" id="sc_w" value="5"></label>
+   <label class="f">比例 1 :<input type="number" id="sc_s" value="100"></label>
+   <label class="f">灌木面積 (m²)<input type="number" id="d_area" value="100"></label>
+   <label class="f">密度（株/m²）<input type="number" id="d_den" value="4" step="0.5"></label>
+   <label class="f">損耗率 (%)<input type="number" id="d_loss" value="5"></label>
+   <label class="f">植栽帶長度 (m)<input type="number" id="t_len" value="40"></label>
+   <label class="f">株距 (m)<input type="number" id="t_sp" value="5"></label>
+   <label class="f">排數<input type="number" id="t_rows" value="1"></label>
+   <label class="f">覆土面積 (m²)<input type="number" id="s_area" value="100"></label>
+   <label class="f">覆土深度 (cm)<input type="number" id="s_depth" value="60"></label>
+   <label class="f">土壤單位重 (t/m³)<input type="number" id="s_uw" value="1.6" step="0.1"></label>
+  </div>
+  <div class="res" id="convRes"></div>
+ </details>
+ <div class="navrow"><button class="b o" onclick="go(2)">← 上一步</button><button class="b" onclick="go(4)">檢討結果 →</button></div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="step-4">
+ <div class="row noprint"><button class="b" onclick="window.print()">列印／另存 PDF</button><button class="b o" onclick="exportJSON()">匯出專案 JSON</button><button class="b o" onclick="document.getElementById('impFile').click()">匯入專案 JSON</button><input type="file" id="impFile" accept=".json" style="display:none" onchange="importJSON(this)"><button class="b o" onclick="go(3)">← 修改細節</button></div>
+ <div class="card"><h2>④ 檢討總表</h2><div id="sumHead"></div><div class="res" id="sumRes"></div><div id="coverFlags"></div></div>
+ <div class="card"><h2>適用法規判定與原始出處</h2><p class="note">每項判定列出所依據之法規、條號、版本與官方連結；標示未查證／假設值者請自行至來源核對。</p><div id="lawApply"></div></div>
+ <div class="card"><h2>喬木逐株檢視</h2><table id="treeReview"></table></div>
+ <div class="card" id="card_tco"><h2>綠化量計算明細</h2><div class="res" id="tcoRes"></div><table class="mini" id="tcoTbl"></table></div>
+ <div class="card" id="card_water"><h2>保水計算明細</h2><div class="res" id="waterRes"></div><div class="res" id="permRes"></div></div>
+ <div class="card"><h2>都審綠化檢核清單</h2>
+  <div class="row noprint"><button class="b sm o" onclick="setAll('符合')">全部標記符合</button><button class="b sm o" onclick="setAll('')">清除</button><span class="note" id="clStat"></span></div>
+  <table id="clTbl"><thead><tr><th style="width:36%">檢核項目</th><th style="width:22%">本案數值／自動判定</th><th style="width:10%">結果</th><th>意見／圖說頁次</th></tr></thead><tbody></tbody></table>
+ </div>
+ <div class="card review-only"><h2>綜合審查意見</h2><textarea id="reviewSummary" placeholder="委員綜合意見…"></textarea></div>
+ <div class="card"><h2 id="lawTitle"></h2><div id="lawList"></div></div>
+ <p class="note" id="disclaimer"></p>
+</section>
+</main>
+
+<dialog id="dlg">
+ <h2>法規資料與更新</h2>
+ <p class="mini">內建資料版本：<b id="dlgVer"></b>｜目前使用：<b id="dlgCur"></b></p>
+ <label class="f">遠端法規資料網址（JSON，需允許跨網域存取，例如 GitHub Raw、公司 NAS）<input id="updUrl" placeholder="https://raw.githubusercontent.com/<org>/<repo>/main/laws-latest.json"></label>
+ <div class="row"><button class="b sm" onclick="checkUpdate()">檢查並下載更新</button><button class="b sm o" onclick="document.getElementById('lawFile').click()">匯入法規 JSON 檔</button><input type="file" id="lawFile" accept=".json" style="display:none" onchange="importLaws(this)"><button class="b sm o" onclick="exportLaws()">匯出目前法規 JSON</button><button class="b sm o" onclick="resetLaws()">還原內建資料</button></div>
+ <div class="mini" id="updMsg"></div>
+ <p class="mini">說明：瀏覽器基於安全限制無法直接讀取各政府法規網站；法規更新由維護者以隨附的 <code>update_laws.py</code> 檢查官方來源異動後，發布新的 <code>laws-latest.json</code>，本工具再由上方網址取得。各法規頁面的官方連結均列於「適用法規判定」與「法規對照」，可隨時點開核對。</p>
+ <div class="row" style="justify-content:flex-end"><button class="b sm o" onclick="document.getElementById('dlg').close()">關閉</button></div>
+</dialog>
+
+<script>
+const THEMES = ['system', 'dark', 'light', 'mac-light', 'mac-dark'], THEME_LABEL = { system: '◐ 跟隨系統', dark: '☾ Windows 深色', light: '☀ 淺色（綠）', 'mac-light': ' Mac 淺色', 'mac-dark': ' Mac 深色' };
+function applyTheme(t) { const r = document.documentElement; if (t === 'system') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', t); const b = document.getElementById('themeBtn'); if (b) b.textContent = THEME_LABEL[t]; }
+function getTheme() { try { return localStorage.getItem('theme') || 'system'; } catch (e) { return 'system'; } }
+function cycleTheme() { const t = THEMES[(THEMES.indexOf(getTheme()) + 1) % THEMES.length]; try { localStorage.setItem('theme', t); } catch (e) { } applyTheme(t); }
+applyTheme(getTheme());
+const BUILTIN = /*__DATA__*/null;
+let DATA = BUILTIN;
+const $ = id => document.getElementById(id);
+const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+const fmt = (n, d = 1) => (Math.round((n || 0) * 10 ** d) / 10 ** d).toLocaleString('zh-TW', { maximumFractionDigits: d });
+const pct = n => ((n || 0) * 100).toFixed(1) + '%';
+const badge = (ok, t) => `<span class="badge ${ok === null || ok === undefined ? 'na' : ok ? 'ok' : 'ng'}">${t ?? (ok === null || ok === undefined ? '未訂' : ok ? '合格' : '不合格')}</span>`;
+const kpi = (l, v, s, src) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s || ''}</div>${src ? `<div class="src">${src}</div>` : ''}</div>`;
+let state = { mode: 'self', city: null, caseType: null, cls: null, step: 1, trees: [], cl: {}, plan: {} };
+let city = null, R = {};
+const CASE = () => DATA.caseTypes.find(c => c.key === state.caseType);
+const cls = () => city.p.coverClasses.find(c => c.key === state.cls) || city.p.coverClasses[0];
+
+// ---------- source helpers ----------
+const KW = { '審議': ['審議範圍', '門檻', '送委員會', '提委員會', '委員會審議', '委員會：', '幹事會', '專案小組', '審議：', '都審', '審議'], '綠覆率': ['綠覆率 ≥', '綠覆率：', '綠覆率／', '綠覆率 =', '綠覆率 50', '綠覆率 75', '綠覆率 ≥50', '1/2 以上', '綠覆率 ', '綠覆率', '綠化面積 ≥', '綠化比例'], '每株': ['m²/株', '每株 ', '每株', '米高徑對照', '→', '樹冠投影', 'm²（株距'], '株': ['1 株', '1 棵', '株數', '總戶數'], '米高徑': ['米高徑 ≥', '米徑 ≥', '米高徑 >', '米高徑', '米徑', '樹高 ≥', '高 ≥2 m'], '樹穴': ['樹穴', '植穴', '植栽槽', '穴口'], '覆土': ['覆土：', '覆土 喬木', '最小覆土', '覆土深度', '覆土'], '人工地盤': ['人工地盤', '屋頂平臺覆土', '陽臺露臺花臺', '陽臺／露臺／外牆', '陽臺露臺'], '植草磚': ['植草磚', '折算', '灌木實際'], '屋頂': ['屋頂綠化 ≥', '屋頂綠化面積', '屋頂綠化', '屋頂平臺綠', '屋頂平臺', '屋頂 ≥', '屋頂'], '透水': ['透水鋪面', '透水面積', '不透水', '透水材', '透水率 ≥', '透水率', '透水'], '保水': ['保水指標', '保水'], '雨水': ['雨水貯', '雨水回收', '雨水'], '退縮': ['退縮'], '原生': ['原生', '鄉土', '本土'], '胸': ['胸'], '綠容率': ['綠容率'] };
+function findLaw(c, kw) {
+  const kws = KW[kw] || [kw];
+  for (const k of kws) for (const l of c.laws) for (const it of l.items) if (it.text.includes(k) || (it.art + '').includes(k)) return { l, it };
+  return null;
+}
+function srcLine(c, kw, fallback) {
+  const f = findLaw(c, kw); if (!f) return fallback ? `<span class="mini">依據：${fallback}</span>` : '';
+  return `<span class="mini">依據：${f.l.title} ${f.it.art}（${f.l.ver}）${f.it.verified ? '' : '<span class="uv">未查證</span>'} <a class="src" href="${f.l.src}" target="_blank">原文 ↗</a></span>`;
+}
+const NAT = () => DATA.national;
+const natSrc = (t, u) => `<span class="mini">依據：${t} <a class="src" href="${u}" target="_blank">原文 ↗</a></span>`;
+
+// ---------- init ----------
+function init() {
+  if (!BUILTIN) { document.body.innerHTML = '<div style="padding:40px;font:16px system-ui"><h2>這是模板檔（template），不含法規資料</h2><p>請開啟 <b>全國都審綠化檢核工具.html</b>，或執行 <code>python update_laws.py build</code> 由 data.json 產生可用的工具。</p></div>'; return; }
+  try { const o = JSON.parse(localStorage.getItem('lawsOverride')); if (o && o.cities && o.meta) DATA = o; } catch (e) { }
+  $('dataVer').textContent = `${DATA.meta.version}（${DATA.meta.date}）${DATA !== BUILTIN ? '・已套用更新' : ''}`;
+  $('disclaimer').textContent = DATA.meta.disclaimer;
+  NAT().greenSpec.Ai.forEach(a => { const o = document.createElement('option'); o.value = a.key; o.textContent = `${a.site}（${a.ai} m²/棵）`; $('aiSel').appendChild(o); });
+  renderCityTiles(); renderCaseTiles();
+  load();
+  document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+  document.querySelectorAll('#steps button').forEach(b => b.onclick = () => go(+b.dataset.s));
+  document.querySelectorAll('input,select,textarea').forEach(el => { if (!el.closest('#treeTbl') && !el.closest('#clTbl') && !el.closest('#dlg')) el.addEventListener('input', recalc); });
+  $('classSel').onchange = () => { state.cls = $('classSel').value; $('classNote').innerHTML = classNote(); recalc(); };
+  if (!state.trees.length) state.trees = [{ n: '樟樹', k: 'big', dbh: 10, h: 4, bh: 2.2, sp: 5, soil: 150, pit: 4, q: 6 }, { n: '水黃皮', k: 'mid', dbh: 6, h: 3, bh: 2, sp: 4, soil: 120, pit: 2.5, q: 4 }];
+  setMode(state.mode);
+  if (state.city) selectCity(state.city, true);
+  if (state.caseType) selectCase(state.caseType, true);
+  renderTrees(); renderChecklist();
+  go(state.step || 1);
+}
+function setMode(m) { state.mode = m; document.body.classList.toggle('mode-review', m === 'review'); document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); save(); }
+function go(s) {
+  if (s >= 2 && !state.city) return; if (s >= 3 && !state.caseType) return;
+  state.step = s;
+  document.querySelectorAll('.step').forEach(el => el.classList.toggle('on', el.id === 'step-' + s));
+  document.querySelectorAll('#steps button').forEach(b => { const n = +b.dataset.s; b.classList.toggle('on', n === s); b.classList.toggle('done', n < s); b.disabled = (n >= 2 && !state.city) || (n >= 3 && !state.caseType); });
+  window.scrollTo(0, 0);
+  if (s === 3) { applyVisibility(); recalc(); }
+  if (s === 4) { recalc(); renderLaws(); }
+  save();
+}
+
+// ---------- step 1 ----------
+function renderCityTiles() {
+  const regions = ['北部', '中部', '南部', '東部', '離島']; let h = '';
+  regions.forEach(rg => { const cs = DATA.cities.filter(c => c.region === rg); if (!cs.length) return; h += `<div class="region">${rg}</div><div class="tiles">` + cs.map(c => `<button class="tile" data-c="${c.id}" onclick="selectCity('${c.id}')"><div class="n">${c.name}</div><div class="d">${c.laws.length} 項法規</div><span class="lvl ${c.level}">${{ full: '完整', partial: '部分', minimal: '基本' }[c.level]}</span></button>`).join('') + '</div>'; });
+  $('cityTiles').innerHTML = h;
+}
+function selectCity(id, silent) {
+  state.city = id; city = DATA.cities.find(c => c.id === id);
+  document.querySelectorAll('#cityTiles .tile').forEach(t => t.classList.toggle('on', t.dataset.c === id));
+  $('to2').disabled = false; $('cityLabel2').textContent = `— ${city.name}`; $('cityLabel3').textContent = `— ${city.name}`;
+  if (!silent) { state.cls = null; state.plan = {}; }
+  if (state.caseType) selectCase(state.caseType, true);
+  save();
+}
+
+// ---------- step 2 ----------
+function renderCaseTiles() { $('caseTiles').innerHTML = DATA.caseTypes.map(c => `<button class="tile" data-k="${c.key}" onclick="selectCase('${c.key}')"><div class="n">${c.label}</div><div class="d">${c.desc}</div></button>`).join(''); }
+function suggestClass() {
+  const k = state.caseType, A0 = num('A0'), bonus = k === 'bonus' || k === 'renewal', cc = city.p.coverClasses; const has = key => cc.find(c => c.key === key);
+  switch (city.id) {
+    case 'TPE': if (k === 'park') return 'c1'; if (k === 'public') return 'c2'; if (A0 >= 1000) return bonus ? 'c2' : 'c3'; if (A0 >= 500) return 'c4'; return bonus ? 'c4' : 'c5';
+    case 'NTPC': return 'gen';
+    case 'TYN': if (bonus) return 'c1'; if (k === 'public' || k === 'commercial' || k === 'industrial') return 'c2'; return 'c3';
+    case 'TNN': if (k === 'park') return 'park'; if (k === 'public') return 'gov'; if (bonus) return 'bonus'; return 'priv';
+    case 'KHH': return bonus ? 'bonus' : 'gen';
+    case 'HSZ': case 'HSQ': return bonus ? 'open' : 'gen';
+    case 'CYQ': return k === 'commercial' ? 'com' : 'res';
+  }
+  return cc[0].key;
+}
+function selectCase(k, silent) {
+  state.caseType = k; document.querySelectorAll('#caseTiles .tile').forEach(t => t.classList.toggle('on', t.dataset.k === k));
+  $('to3').disabled = false; $('zone').value = CASE().zone;
+  $('classSel').innerHTML = city.p.coverClasses.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
+  if (!silent || !state.cls || !city.p.coverClasses.find(c => c.key === state.cls)) state.cls = suggestClass();
+  $('classSel').value = state.cls; $('classPick').classList.toggle('hidden', city.p.coverClasses.length < 2); $('classNote').innerHTML = classNote();
+  save();
+}
+function classNote() { const c = cls(); return (c.ratio !== null ? `綠覆率 ≥ <b>${pct(c.ratio)}</b>（分母：${city.p.coverDenominator}）` : '本類別未訂數值，請於細節輸入細部計畫規定值') + (c.assumed ? ' <span class="as">假設值／依細部計畫</span>' : '') + '　' + srcLine(city, '綠覆率', city.mainLaw); }
+
+// ---------- step 3 visibility ----------
+function show(id, on) { const el = $(id); if (el) el.classList.toggle('hidden', !on); }
+function applyVisibility() {
+  const p = city.p, k = state.caseType, c = cls();
+  // plan inputs for null rules
+  let h = '';
+  if (c.ratio === null) h += `<label class="f">細部計畫土管要點規定綠覆率 (%)<input type="number" id="pl_cover" value="${state.plan.cover ?? 50}" min="0" max="100"><span class="hint">本縣市／類別未訂統一數值；請查該基地細部計畫土管要點後填入</span></label>`;
+  if (!p.treeCountRule || !p.treeCountRule.per) h += `<label class="f">土管要點喬木株數：每 N m² 1 株（0＝無規定）<input type="number" id="pl_tree" value="${state.plan.tree ?? 0}" min="0"></label>`;
+  if (!p.soilGround || !p.soilGround.tree) h += `<label class="f">地面層喬木最低覆土 (cm)<input type="number" id="pl_soil" value="${state.plan.soil ?? 100}" min="0"><span class="hint">本縣市未訂；預設採技術規範大喬木 1.0 m</span></label>`;
+  $('planInputs').innerHTML = h;
+  $('planInputs').querySelectorAll('input').forEach(el => el.addEventListener('input', () => { state.plan = { cover: $('pl_cover') ? num('pl_cover') : state.plan.cover, tree: $('pl_tree') ? num('pl_tree') : state.plan.tree, soil: $('pl_soil') ? num('pl_soil') : state.plan.soil }; recalc(); }));
+  show('f_units', city.id === 'KHH' && k === 'townhouse');
+  show('f_setback', city.id === 'TYN');
+  show('f_nonGreen', ['TPE', 'NTPC', 'TXG', 'TYN', 'TNN', 'HSZ', 'ILA', 'MIA'].includes(city.id));
+  $('nonGreenHint').textContent = city.id === 'KHH' ? '高雄不得扣除' : (p.coverDenominator);
+  const hasRoof = !!(p.roofGreen && (p.roofGreen.ratio || p.roofGreen.countsInCover));
+  show('f_roofBase', hasRoof && !!p.roofGreen.ratio && city.id !== 'KHH'); $('roofBaseHint').textContent = p.roofGreen.base || '';
+  show('f_roofGreen', hasRoof); show('f_vert', hasRoof); show('f_roofShrub', city.id === 'TPE');
+  show('f_soilRoof', !!p.soilArtificial && !!p.soilArtificial.tree);
+  show('f_soilShrub', !!(p.soilGround && p.soilGround.shrub)); show('f_soilGround', !!(p.soilGround && p.soilGround.ground));
+  show('f_pave', city.id === 'TPE'); show('f_permArea', city.id === 'TPE');
+  show('f_permTotal', ['NTPC', 'TNN', 'HSZ', 'HSQ'].includes(city.id));
+  show('f_walk', city.id === 'KHH'); show('f_walkPerm', city.id === 'KHH');
+  show('f_rainCap', ['TNN', 'KHH'].includes(city.id)); show('f_excav', ['TNN', 'KHH'].includes(city.id));
+  show('sec_tco2', num('A0') > 300);
+}
+
+// ---------- trees ----------
+function addTree() { state.trees.push({ n: '', k: 'mid', dbh: 6, h: 3, bh: 2, sp: 4, soil: 150, pit: 2.5, q: 1 }); renderTrees(); recalc(); }
+function renderTrees() {
+  const tb = $('treeTbl').querySelector('tbody'); tb.innerHTML = '';
+  state.trees.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input value="${t.n}" data-k="n"></td><td><select data-k="k"><option value="big">大喬木</option><option value="mid">中喬木</option><option value="small">小喬木</option><option value="palm">棕櫚</option></select></td>
+    <td><input type="number" value="${t.dbh}" data-k="dbh" step="0.5"></td><td><input type="number" value="${t.h}" data-k="h" step="0.5"></td><td><input type="number" value="${t.bh}" data-k="bh" step="0.1"></td><td><input type="number" value="${t.sp}" data-k="sp" step="0.5"></td><td><input type="number" value="${t.soil}" data-k="soil" step="10"></td><td><input type="number" value="${t.pit}" data-k="pit" step="0.5"></td><td><input type="number" value="${t.q}" data-k="q" min="0"></td>
+    <td class="c-per"></td><td class="c-sub"></td><td class="c-chk mini"></td><td><button class="b sm o" onclick="state.trees.splice(${i},1);renderTrees();recalc()">✕</button></td>`;
+    tr.querySelector('[data-k=k]').value = t.k;
+    tr.querySelectorAll('input,select').forEach(el => el.addEventListener('input', () => { const k = el.dataset.k; t[k] = (k === 'n' || k === 'k') ? el.value : parseFloat(el.value) || 0; recalc(); }));
+    tb.appendChild(tr);
+  });
+}
+function aiVal() { return NAT().greenSpec.Ai.find(a => a.key === $('aiSel').value).ai; }
+function tableLookup(tb, dbh) { for (const [lim, v] of tb) if (dbh <= lim) return v; return tb[tb.length - 1][1]; }
+function treeCover(t) {
+  const p = city.p, tc = p.treeCover, dbh = t.dbh || 0; let per = 0, flags = [];
+  const soilMin = (p.soilGround && p.soilGround.tree) || state.plan.soil || 100;
+  if (city.id === 'TPE') {
+    per = t.k === 'big' ? 25 : t.k === 'mid' ? 16 : 9;
+    if (t.k === 'big' && dbh < 8) flags.push('大喬木米高徑應 ≥8 cm'); if (t.k === 'mid' && dbh < 6) flags.push('中喬木米高徑應 ≥6 cm');
+    if (t.soil < 150) { if (t.soil >= 120) { per *= 0.8; flags.push('覆土 120–150 cm 綠覆以 80% 計'); } else if (t.soil >= 100) { per *= 0.6; flags.push('覆土 100–120 cm 綠覆以 60% 計'); } else { per = 0; flags.push('覆土 <100 cm 不計'); } }
+    const pitMin = t.k === 'big' ? 4 : t.k === 'mid' ? 2.5 : 1.5; if (t.pit < pitMin) flags.push(`樹穴應 ≥${pitMin} m²`);
+  } else if (city.id === 'NTPC') {
+    per = dbh > 10 ? 20 : dbh >= 8 ? 15 : dbh >= 5 ? 10 : 0; if (dbh < 5) flags.push('米高徑應 ≥5 cm（不計綠覆）');
+    if (t.bh < 2.5) flags.push('樹冠底淨高應 ≥2.5 m'); if (t.soil < 150) { per = 0; flags.push('覆土應 >1.5 m（不計）'); }
+  } else if (city.id === 'TYN') {
+    per = 25; if (t.h < 2) flags.push('樹高應 ≥2 m'); if (t.sp < 4) flags.push('株距 <4 m 以 1 株計'); if (t.pit < 1) flags.push('樹穴應 ≥1×1 m');
+    if (t.soil < 150 && !(t.pit >= 6 && t.soil >= 100)) flags.push('都審：覆土 ≥1.5 m（植栽範圍 ≥6 m² 得 ≥1 m）'); if (t.bh < 2) flags.push('都審沿街喬木枝下淨高 ≥2 m');
+  } else if (city.id === 'TNN') {
+    per = tableLookup(tc.table, dbh); if (t.k === 'palm') per /= 3; if (t.sp < 4) flags.push('樹距應 ≥4 m'); if (t.pit < 1.5) flags.push('樹穴應各向 ≥1 m、≥1.5 m²'); if (t.soil < 150) { per = 0; flags.push('覆土應 ≥150 cm（不計）'); }
+  } else if (city.id === 'KHH') {
+    per = t.k === 'palm' ? 9 : aiVal(); if (dbh < 8) flags.push('米高徑應 ≥8 cm'); if (t.sp && (t.sp < 4 || t.sp > 6)) flags.push('樹距 4–6 m'); if (t.sp && t.sp < Math.sqrt(per)) { per = t.sp * t.sp; flags.push('間距不足以間距平方計'); }
+  } else if (city.id === 'TXG') {
+    per = t.k === 'big' ? 25 : t.k === 'mid' ? 16 : 9; if (dbh < 8) flags.push('都審：法定喬木米徑 ≥8 cm（人行道側 ≥12 cm）'); if (t.bh < 2) flags.push('枝下高應 ≥2 m'); if (t.soil < 120) { per = 0; flags.push('覆土應 ≥120 cm（不計）'); } if (t.pit < 1.5) flags.push('帶狀植穴寬 ≥1.5 m');
+  } else if (city.id === 'HSQ') {
+    per = t.k === 'palm' ? 16 : tableLookup(tc.table, dbh); if (dbh < 5) flags.push('米高徑 <5 cm 不計'); if (t.h < 2) flags.push('樹高應 ≥2 m');
+  } else {
+    per = t.k === 'big' ? tc.big : t.k === 'mid' ? tc.mid : t.k === 'small' ? tc.small : tc.palm;
+    if (p.treeSpec && p.treeSpec.minDBH && dbh < p.treeSpec.minDBH) flags.push(`米高徑應 ≥${p.treeSpec.minDBH} cm`);
+    if (p.treeSpec && p.treeSpec.minHeight && t.h < p.treeSpec.minHeight) flags.push(`樹高應 ≥${p.treeSpec.minHeight} m`);
+    if (t.soil < soilMin) { per = 0; flags.push(`覆土 <${soilMin} cm 不計`); }
+    if (city.id === 'CHA' && t.pit < 0.785) flags.push('植穴應 ≥ 直徑 1 m'); if (city.id === 'ILA' && t.pit < 1) flags.push('栽植穴口應 ≥1 m²');
+    if (t.sp && t.sp < Math.sqrt(per)) { per = t.sp * t.sp; flags.push('間距不足以間距平方計'); }
+  }
+  return { per, flags };
+}
+
+// ---------- recalc ----------
+function udrCheck(A0, gfa, floors, h) {
+  const bonus = state.caseType === 'bonus' || state.caseType === 'renewal', pub = state.caseType === 'public', park = state.caseType === 'park';
+  const m = { TPE: A0 >= 6000 && gfa >= 30000 || pub && gfa >= 15000 || park && A0 >= 10000, NTPC: A0 > 6000 && gfa > 30000, TYN: A0 >= 2000 && (A0 >= 4000 || bonus || pub && gfa >= 4000), TXG: floors > 12 || gfa > 30000 || A0 > 6000 || ($('zone').value === 'com' && A0 > 3000), TNN: A0 >= 2000 || bonus, KHH: (A0 >= 2000 && floors >= 6) || h >= 50 || floors >= 16 || pub && gfa >= 6000, KEE: A0 > 2500 && gfa >= 10000 || pub && gfa >= 3000, HSZ: A0 >= 1500 || bonus, HSQ: A0 >= 2000, MIA: (A0 >= 3000 && gfa >= 1000) || bonus, ILA: A0 >= 500 || h >= 15, CHA: bonus || pub && gfa >= 6000 || park && A0 >= 3000, YUN: A0 > 1500 || gfa > 3000 || bonus, CYI: A0 > 1500, CYQ: A0 >= 2000 || pub && gfa >= 3000, TTT: A0 >= 1500 || gfa >= 1500 || pub && gfa >= 1000, HUA: !(A0 < 150 || floors < 4), LIE: false };
+  return { hit: m[city.id] === undefined ? null : !!m[city.id], txt: city.p.udrThreshold };
+}
+function recalc() {
+  if (!city || !state.caseType) return;
+  const p = city.p, c = cls(), A0 = num('A0'), r = num('r') / 100, legal = A0 * (1 - r); $('legalOpen').value = Math.round(legal * 10) / 10;
+  const floors = num('floors'), gfa = num('gfa'), bArea = num('bArea'), k = state.caseType;
+  const applyGreen = A0 > 300, applyWater = A0 > 300 && $('slope').value === '0', udr = udrCheck(A0, gfa, floors, num('height'));
+  // cover
+  const deductOK = ['TPE', 'NTPC', 'TXG', 'TYN', 'TNN', 'HSZ', 'ILA', 'MIA'].includes(city.id);
+  const denom = Math.max(legal - (deductOK ? num('nonGreen') : 0), 0);
+  const coverReq = c.ratio !== null ? c.ratio : (state.plan.cover ?? ($('pl_cover') ? num('pl_cover') : 50)) / 100;
+  let treeArea = 0, treeCount = 0, treeFlags = [], treeRows = [];
+  document.querySelectorAll('#treeTbl tbody tr').forEach((tr, i) => { const t = state.trees[i]; const { per, flags } = treeCover(t); const sub = per * t.q; treeArea += sub; treeCount += t.q; tr.querySelector('.c-per').textContent = fmt(per, 2); tr.querySelector('.c-sub').textContent = fmt(sub); tr.querySelector('.c-chk').innerHTML = flags.length ? `<span class="ng">${flags.join('；')}</span>` : '<span class="ok">✓</span>'; if (flags.length) treeFlags.push(`${t.n || '喬木' + (i + 1)}：${flags.join('；')}`); treeRows.push({ ...t, per, sub, flags }); });
+  $('treeNote').innerHTML = `本縣市每株綠覆：${p.treeCover.note}${p.treeCover.assumed ? ' <span class="as">假設值</span>' : ''}`;
+  const shrubA = num('shrub') * p.shrubFactor, groundA0 = num('ground') * p.groundFactor, paverA = num('paver') * p.grassPaverFactor, pondA = num('pond') * p.pondFactor, swaleA = num('swale') * p.swaleFactor;
+  let groundA = groundA0, capNote = '';
+  $('shrubHint').textContent = `折算係數 ×${p.shrubFactor}`; $('paverHint').textContent = `折算 ×${p.grassPaverFactor.toFixed(3)}`; $('pondHint').textContent = `折算 ×${p.pondFactor.toFixed(3)}`;
+  const rg = p.roofGreen || {}; let roofA = 0, vertA = 0;
+  if (rg.countsInCover) { roofA = num('roofGreen') * (rg.roofFactor || 1); vertA = num('vert') * (rg.balconyFactor || 1); if (rg.capRatio) { const cap = rg.capRatio * coverReq * denom; if (roofA + vertA > cap) { capNote = `屋頂／陽台綠化計入上限 ${fmt(cap)} m²（應綠覆面 ${rg.capRatio.toFixed(2)}）`; const s = cap / (roofA + vertA); roofA *= s; vertA *= s; } } }
+  $('roofHint').textContent = rg.countsInCover ? `計入綠覆${rg.capRatio ? '（上限 ' + rg.capRatio.toFixed(2) + ' 應綠覆面）' : ''}` : '本縣市不計入綠覆率';
+  if (p.groundCap) { const other = treeArea + shrubA + paverA + pondA + swaleA + roofA + vertA; const maxG = p.groundCap / (1 - p.groundCap) * other; if (groundA > maxG) { groundA = maxG; capNote += (capNote ? '；' : '') + `草花草皮地被比例上限 ${pct(p.groundCap)}`; } }
+  const coverTotal = treeArea + shrubA + groundA + paverA + pondA + swaleA + roofA + vertA, coverRatio = denom > 0 ? coverTotal / denom : 0, coverNeed = Math.max(coverReq * denom - coverTotal, 0);
+  const perBig = Math.max(p.treeCover.big, 1);
+  let reqTrees = null, reqTxt = '';
+  if (city.id === 'TYN') { if (c.treePer) { reqTrees = Math.floor(legal / c.treePer); reqTxt = `法定空地每 ${c.treePer} m² 1 株`; } const sb = num('setbackArea'); if (sb > 0) { const q = Math.ceil(sb / 25); reqTrees = (reqTrees || 0) + q; reqTxt += (reqTxt ? '＋' : '') + `都審退縮範圍每 25 m² 1 棵（${q}）`; } if (reqTrees === null) reqTxt = '第三類未訂株數'; }
+  else if (c.treePer) { reqTrees = Math.floor(legal / c.treePer); reqTxt = `法定空地每 ${c.treePer} m² 1 株`; }
+  else if (p.treeCountRule && p.treeCountRule.per) { const base = city.id === 'NTPC' ? denom : legal; reqTrees = Math.floor(base / p.treeCountRule.per); reqTxt = `${p.treeCountRule.base} ${fmt(base)} ÷ ${p.treeCountRule.per}`; }
+  else if (city.id === 'KHH' && k === 'townhouse') { const u = num('units'); if (u > 0) { reqTrees = u; reqTxt = '透天：喬木 ≥ 總戶數'; } else reqTxt = '請填總戶數'; }
+  else { const pt = state.plan.tree || ($('pl_tree') ? num('pl_tree') : 0); if (pt > 0) { reqTrees = Math.floor(legal / pt); reqTxt = `土管要點每 ${pt} m² 1 株`; } else reqTxt = p.treeCountRule ? p.treeCountRule.note : '未訂每 m² 株數'; }
+  let roofReq = null, roofTxt = rg.note || '';
+  if (rg.ratio) { let base = num('roofBase'); if (city.id === 'KHH' || city.id === 'PIF') base = bArea; const cond = city.id === 'TYN' ? ($('zone').value === 'res' && floors >= 6) : city.id === 'CHA' ? (k === 'bonus' || k === 'renewal') : city.id === 'TXG' ? udr.hit : true; if (!cond) { roofTxt = '不適用：' + (rg.condition || '未達條件'); } else { roofReq = rg.ratio * base; roofTxt = `≥${pct(rg.ratio)} × ${rg.base} ${fmt(base)}`; } }
+  const roofAct = num('roofGreen') + (['KHH', 'PIF'].includes(city.id) ? num('vert') : 0);
+  const sg = p.soilGround || {}, flags = []; const sr = ($('soilRoof').value || '').split('/').map(Number), sa = p.soilArtificial;
+  if (sg.shrub && num('soilShrub') < sg.shrub) flags.push(`地面灌木覆土 ${num('soilShrub')} < ${sg.shrub} cm`); if (sg.ground && num('soilGround') < sg.ground) flags.push(`地面地被覆土 ${num('soilGround')} < ${sg.ground} cm`);
+  if (sa && sa.tree && (num('roofGreen') > 0 || num('vert') > 0)) { if (sr[0] < sa.tree) flags.push(`人工地盤喬木覆土 ${sr[0]} < ${sa.tree} cm`); if (sr[1] < sa.shrub) flags.push(`人工地盤灌木覆土 ${sr[1]} < ${sa.shrub} cm`); if (sr[2] < sa.ground) flags.push(`人工地盤地被覆土 ${sr[2]} < ${sa.ground} cm`); }
+  if ((city.id === 'TPE' || city.id === 'KHH') && num('shrub') > 0 && num('shrubDen') < 4) flags.push('灌木密度應每 m² ≥4 株');
+  if (city.id === 'TPE' && num('roofGreen') > 0 && num('roofShrub') < 0.3 * num('roofGreen')) flags.push('北市屋頂綠覆中灌木應 ≥30%');
+  if (capNote) flags.push(capNote);
+  let gcr = null; if (c.gcr) gcr = (treeRows.filter(t => t.k === 'big').reduce((s, t) => s + t.sub, 0) * 3 + treeRows.filter(t => t.k !== 'big').reduce((s, t) => s + t.sub, 0) * 2 + num('shrub') * 1.2 + (groundA + paverA + pondA + roofA + vertA)) / A0;
+  R.cover = { denom, coverTotal, coverRatio, coverReq, coverNeed, treeArea, treeCount, reqTrees, reqTxt, roofReq, roofAct, roofTxt, gcr, perBig, flags, treeFlags, treeRows, shrubA, groundA, paverA, pondA, swaleA, roofA, vertA };
+  // TCO2
+  let beta = 0.66; const z = $('zone').value; if (city.id === 'TPE' && c.beta) beta = c.beta; else beta = z === 'school' ? 0.83 : (z === 'com' || z === 'ind') ? 0.50 : 0.66;
+  $('beta').value = beta; $('betaHint').textContent = city.id === 'TPE' ? `北市綠化實施規則 §6 依基地類別 ${beta}` : '技術規則 §302：學校公園 0.83／商業工業 0.50／其他 0.66';
+  const Ap = num('Ap'), Amin = Math.max((A0 - Ap) * (1 - r), 0.15 * A0), tco2c = 0.5 * Amin * beta, alpha = 0.8 + 0.5 * num('ra'), Ai = aiVal();
+  const gi = Object.fromEntries(NAT().greenSpec.Gi.map(g => [g.key, g.gi])); const rows = [];
+  treeRows.forEach(t => { let key = t.k === 'big' ? 'bigTree' : t.k === 'palm' ? 'palm' : 'smallTree', note = ''; if (t.k === 'big' && (t.soil < 100 || t.pit < 4)) { if (t.pit >= 1.5 && t.soil >= 70) { key = 'smallTree'; note = '覆土/樹穴不足，以小喬木認定'; } else note = '覆土或樹穴未達門檻，不計'; } if (key !== 'bigTree' && (t.soil < 70 || t.pit < 1.5) && !note) note = '覆土 <0.7 m 或樹穴 <1.5 m²，不計'; const valid = !note.includes('不計'); let ai = Ai; if (t.sp && t.sp < Math.sqrt(Ai)) ai = t.sp * t.sp; rows.push({ n: `${t.n || '喬木'}（${t.q} 株）`, gi: gi[key], a: ai * t.q, v: valid ? gi[key] * ai * t.q : 0, note }); });
+  rows.push({ n: '生態複層', gi: gi.eco, a: num('eco'), v: gi.eco * num('eco') }, { n: '灌木', gi: gi.shrub, a: num('shrub'), v: num('shrubDen') >= 2 ? gi.shrub * num('shrub') : 0, note: num('shrubDen') < 2 ? '密度 <2 株/m² 不計' : '' }, { n: '多年生蔓藤', gi: gi.vine, a: num('vine'), v: gi.vine * num('vine') }, { n: '草花／地被／草坪／水生', gi: gi.ground, a: num('ground') + num('pond'), v: gi.ground * (num('ground') + num('pond')) }, { n: '薄層／壁掛綠化', gi: gi.thin, a: num('thin'), v: gi.thin * num('thin') }, { n: '屋頂／立體綠化（以草花計，請依實際調整）', gi: gi.ground, a: num('roofGreen') + num('vert'), v: gi.ground * (num('roofGreen') + num('vert')) });
+  const sum = rows.reduce((s, x) => s + x.v, 0), tco2 = alpha * sum;
+  R.tco = { Amin, tco2c, alpha, tco2, ok: tco2 > tco2c, beta, Ai, rows, apply: applyGreen };
+  // water
+  const f = $('fSel').value === 'custom' ? num('fCustom') : parseFloat($('fSel').value), t = 86400, kk = p.waterLambdaFactor;
+  const lc = kk * (1 - Math.min(r, 0.85)), Q0 = A0 * f * t, Q1 = num('A1') * f * t, Q2 = 0.5 * num('A2') * f * t + ($('q2vent').value === '1' ? 0.3 : 0.05) * Math.min(num('h2'), 0.25) * num('A2'), Q3 = 0.05 * num('V3'), Q4 = 0.36 * num('A4') * f * t + num('V4'), Q5 = 0.36 * num('A5') * f * t + num('V5'), Q7 = 1.08 * f * num('n7') * t + 0.015 * num('n7');
+  const Q = Q1 + Q2 + Q3 + Q4 + Q5 + Q7, lam = Q0 > 0 ? Q / Q0 : 0;
+  R.water = { f, lc, Q0, Q1, Q2, Q3, Q4, Q5, Q7, Q, lam, ok: lam > lc, apply: applyWater, k: kk };
+  let permTxt = '', permOK = null, rainReq = null, rainTxt = '';
+  const pave = num('pave'), permArea = num('permArea'), permTotal = num('permTotal');
+  if (city.id === 'TPE') { permOK = pave > 0 ? permArea / pave >= 0.5 : null; permTxt = `舖面 ${fmt(pave)} m² 中透水 ${fmt(permArea)} m² = ${pct(pave ? permArea / pave : 0)}（要求 ≥50%，級配 ≥30 cm）`; }
+  else if (city.id === 'NTPC') { permOK = permTotal / legal >= 0.8; permTxt = `透水面積 ${fmt(permTotal)} / 法定空地 ${fmt(legal)} = ${pct(legal ? permTotal / legal : 0)}（要求 ≥80%）`; }
+  else if (city.id === 'TNN') { let req = legal - 0.1 * A0; if (floors >= 12 && num('excav') > 0) req = Math.min(req, 0.25 * legal); permOK = permTotal >= req; permTxt = `透水面積 ${fmt(permTotal)} ≥ 法定空地 − 10% 基地 = ${fmt(req)} m²`; }
+  else if (city.id === 'KHH') { permOK = num('walk') > 0 ? num('walkPerm') >= num('walk') : null; permTxt = `人行步道 ${fmt(num('walk'))} m² 應全面透水，實設 ${fmt(num('walkPerm'))}`; }
+  else if (['HSZ', 'HSQ'].includes(city.id)) { permOK = permTotal / legal >= 0.5; permTxt = `透水／綠化面積 ${fmt(permTotal)} / 法定空地 ${fmt(legal)} = ${pct(legal ? permTotal / legal : 0)}（不透水鋪面 ≤1/2）`; }
+  else permTxt = p.permeable.note || '未訂';
+  if (city.id === 'TNN') { rainReq = A0 * 0.119; rainTxt = '基地面積 × 0.119 m'; } if (city.id === 'KHH') { rainReq = Math.max(bArea, num('excav')) * 0.132; rainTxt = 'max(建築面積, 開挖面積) × 0.132 m'; } if (city.id === 'TPE' && gfa >= 5000) rainTxt = '總樓地板 ≥5,000 m²：雨水貯留利用率 ≥4%'; if (!rainTxt) rainTxt = p.rain.note || '';
+  R.perm = { permTxt, permOK, rainReq, rainTxt }; R.udr = udr; R.apply = { green: applyGreen, water: applyWater };
+  renderStep4(); updateChecklist(); convCalc(); save();
+}
+
+// ---------- step 4 render ----------
+function renderStep4() {
+  const c = R.cover, t = R.tco, w = R.water, pm = R.perm, p = city.p, cc = cls();
+  $('sumHead').innerHTML = `<p><b>${$('p_name').value || '（未命名案件）'}</b>｜${city.name}｜${CASE().label}｜${cc.label}｜基地 ${fmt(num('A0'))} m²、建蔽率 ${num('r')}%、法定空地 ${fmt(num('legalOpen'))} m²、${num('floors')} F／${num('height')} m</p>`;
+  $('sumRes').innerHTML =
+    kpi('都市設計審議', badge(R.udr.hit, R.udr.hit === null ? '依指定地區' : R.udr.hit ? '可能須送審' : '未達門檻'), R.udr.txt, srcLine(city, '審議', city.mainLaw))
+    + kpi('綠覆率', `<span class="${c.coverRatio >= c.coverReq ? 'ok' : 'ng'}">${pct(c.coverRatio)}</span>`, `要求 ≥ ${pct(c.coverReq)}${cc.ratio === null ? '（土管輸入值）' : ''}　${badge(c.coverRatio >= c.coverReq)}　${fmt(c.coverTotal)} / ${fmt(c.denom)} m²`, srcLine(city, '綠覆率', city.mainLaw))
+    + kpi('尚需綠覆面積', fmt(c.coverNeed) + ' m²', c.coverNeed > 0 ? `≈ 大喬木 ${Math.ceil(c.coverNeed / c.perBig)} 株 或 灌木 ${Math.ceil(c.coverNeed / p.shrubFactor)} m²` : '已達標')
+    + kpi('喬木株數', `${c.treeCount} 株${c.reqTrees !== null ? ` / 應植 ${c.reqTrees}` : ''}`, c.reqTxt + (c.reqTrees !== null ? ' ' + badge(c.treeCount >= c.reqTrees) : ''), srcLine(city, '株', ''))
+    + (p.roofGreen && p.roofGreen.ratio ? kpi('屋頂綠化', c.roofReq !== null ? `${fmt(c.roofAct)} / ${fmt(c.roofReq)} m²` : '—', c.roofTxt + (c.roofReq !== null ? ' ' + badge(c.roofAct >= c.roofReq) : ''), srcLine(city, '屋頂', '')) : '')
+    + (c.gcr !== null ? kpi('綠容率（北市）', c.gcr.toFixed(2), `要求 ≥ ${cc.gcr} ${badge(c.gcr >= cc.gcr)}`, srcLine(city, '綠容率', '')) : '')
+    + (t.apply ? kpi('綠化量 TCO₂（§302）', `<span class="${t.ok ? 'ok' : 'ng'}">${fmt(t.tco2, 1)}</span>`, `> 基準 ${fmt(t.tco2c, 1)}　${badge(t.ok)}　達成率 ${pct(t.tco2c ? t.tco2 / t.tco2c : 0)}`, natSrc('建築技術規則 §302／綠化設計技術規範', NAT().art302.src)) : kpi('綠化量 TCO₂', badge(null, '免檢討'), '基地 ≤300 m²'))
+    + (w.apply ? kpi('保水指標 λ（§305）', `<span class="${w.ok ? 'ok' : 'ng'}">${w.lam.toFixed(3)}</span>`, `> λc ${w.lc.toFixed(3)}（${w.k}×(1−r)）　${badge(w.ok)}`, natSrc('建築技術規則 §305／保水設計技術規範', NAT().art305.src)) : kpi('保水指標', badge(null, '免檢討'), '≤300 m²、山坡地或地下水位 <1 m'))
+    + kpi('透水鋪面', badge(pm.permOK), pm.permTxt, srcLine(city, '透水', ''))
+    + (pm.rainReq !== null ? kpi('雨水貯留', `${fmt(num('rainCap'))} / ${fmt(pm.rainReq)} m³`, pm.rainTxt + ' ' + badge(num('rainCap') >= pm.rainReq), srcLine(city, '雨水', '')) : '');
+  $('coverFlags').innerHTML = (c.flags.length || c.treeFlags.length) ? `<div class="warnbox"><b>檢視提醒：</b><ul style="margin:4px 0 0 18px">${[...c.treeFlags, ...c.flags].map(f => `<li>${f}</li>`).join('')}</ul></div>` : '';
+  // law apply with sources
+  const items = [
+    ['都審適用門檻', p.udrThreshold, '審議'], ['綠覆率要求', `${cc.label}：${cc.ratio !== null ? '≥ ' + pct(cc.ratio) : '未訂（輸入值 ' + pct(c.coverReq) + '）'}；分母 ${p.coverDenominator}`, '綠覆率'],
+    ['每株喬木綠覆', p.treeCover.note, '每株'], ['喬木株數', c.reqTxt, '株'], ['喬木規格', p.treeSpec.note, '米高徑'], ['樹穴', p.treePit.note, '樹穴'],
+    ['地面覆土', p.soilGround ? `喬木 ${p.soilGround.tree ?? '—'}／灌木 ${p.soilGround.shrub ?? '—'}／地被 ${p.soilGround.ground ?? '—'} cm` : '未訂（採技術規範）', '覆土'],
+    ['人工地盤覆土', p.soilArtificial ? (p.soilArtificial.tree ? `喬木 ${p.soilArtificial.tree}／灌木 ${p.soilArtificial.shrub}／地被 ${p.soilArtificial.ground} cm` : p.soilArtificial.note) : '未訂', '人工地盤'],
+    ['折算係數', `灌木 ×${p.shrubFactor}、植草磚 ×${p.grassPaverFactor.toFixed(2)}、生態池 ×${p.pondFactor.toFixed(2)}`, '植草磚'],
+    ['屋頂綠化', c.roofTxt || (p.roofGreen.note || '未訂'), '屋頂'], ['透水', pm.permTxt, '透水'], ['保水係數', `λc = ${p.waterLambdaFactor} × (1 − r)`, '保水'], ['雨水貯留', pm.rainTxt || '未訂', '雨水'],
+    ['退縮／人行', p.setback, '退縮'], ['原生種', p.native, '原生'], ['受保護樹木', p.treeProtect, '胸']];
+  $('lawApply').innerHTML = items.map(([l, v, kw]) => { const f = findLaw(city, kw); return `<div class="law"><span class="t">${l}：</span>${v}${f ? `<br><span class="mini">出處：${f.l.title} ${f.it.art}（${f.l.ver}）${f.it.verified ? '' : '<span class="uv">未查證</span>'} <a class="src" href="${f.l.src}" target="_blank">${f.l.src}</a></span>` : `<br><span class="mini">出處：${city.mainLaw}（未對應到特定條文）</span>`}</div>`; }).join('')
+    + `<div class="law"><span class="t">中央基準：</span>建築技術規則 §298–§305；建築基地綠化設計技術規範；建築基地保水設計技術規範<br><span class="mini"><a class="src" href="${NAT().scope.src}" target="_blank">${NAT().scope.src}</a>｜<a class="src" href="${NAT().greenSpec.src}" target="_blank">綠化技術規範 PDF</a>｜<a class="src" href="${NAT().waterSpec.src}" target="_blank">保水技術規範 PDF</a></span></div>`;
+  $('treeReview').innerHTML = `<tr><th>樹種</th><th>類別</th><th>米高徑</th><th>樹高</th><th>枝下高</th><th>株距</th><th>覆土</th><th>樹穴</th><th>數量</th><th>每株綠覆</th><th>小計</th><th>檢視</th></tr>` + c.treeRows.map(x => `<tr><td>${x.n}</td><td>${{ big: '大喬木', mid: '中喬木', small: '小喬木', palm: '棕櫚' }[x.k]}</td><td>${x.dbh}</td><td>${x.h}</td><td>${x.bh}</td><td>${x.sp}</td><td>${x.soil}</td><td>${x.pit}</td><td>${x.q}</td><td>${fmt(x.per, 2)}</td><td>${fmt(x.sub)}</td><td class="${x.flags.length ? 'ng' : 'ok'}">${x.flags.join('；') || '✓'}</td></tr>`).join('');
+  $('card_tco').classList.toggle('hidden', !t.apply);
+  $('tcoRes').innerHTML = kpi('最小綠化面積 A′', fmt(t.Amin) + ' m²', 'max((A₀−Ap)(1−r), 0.15A₀)') + kpi('基準值 TCO₂c', fmt(t.tco2c, 2), `0.5 × A′ × β(${t.beta})`) + kpi('α', t.alpha.toFixed(2), '0.8 + 0.5 × ra') + kpi('TCO₂', fmt(t.tco2, 2), badge(t.ok)) + (!t.ok ? kpi('尚需', fmt(t.tco2c - t.tco2, 2), `≈ 大喬木 ${Math.ceil((t.tco2c - t.tco2) / (t.alpha * 1.5 * t.Ai))} 株 或 灌木 ${Math.ceil((t.tco2c - t.tco2) / (t.alpha * 0.5))} m²`) : '');
+  $('tcoTbl').innerHTML = `<tr><th>項目</th><th>Gi</th><th>Ai / 面積 m²</th><th>Gi×Ai</th><th>備註</th></tr>` + t.rows.map(x => `<tr><td>${x.n}</td><td>${x.gi}</td><td>${fmt(x.a)}</td><td>${fmt(x.v, 2)}</td><td class="${x.note ? 'ng' : ''}">${x.note || ''}</td></tr>`).join('') + `<tr><th colspan="3">α ${t.alpha.toFixed(2)} × Σ ${fmt(t.rows.reduce((s, x) => s + x.v, 0), 2)}</th><th>${fmt(t.tco2, 2)}</th><th></th></tr>`;
+  $('waterRes').innerHTML = w.apply ? kpi('λc', w.lc.toFixed(3), `${w.k} × (1 − min(r,0.85))`) + kpi('Q₀', fmt(w.Q0) + ' m³', `A₀ × f(${w.f}) × 86,400`) + kpi('ΣQ', fmt(w.Q) + ' m³', `Q1 ${fmt(w.Q1)}｜Q2 ${fmt(w.Q2)}｜Q3 ${fmt(w.Q3)}｜Q4 ${fmt(w.Q4)}｜Q5 ${fmt(w.Q5)}｜Q7 ${fmt(w.Q7)}`) + kpi('λ', w.lam.toFixed(3), badge(w.ok) + (!w.ok ? ` 尚需 ${fmt(w.lc * w.Q0 - w.Q)} m³ ≈ 綠地 ${Math.ceil((w.lc * w.Q0 - w.Q) / (w.f * 86400))} m²` : '')) : '<p class="note">本案免檢討基地保水指標。</p>';
+  $('permRes').innerHTML = kpi('透水鋪面', badge(pm.permOK), pm.permTxt) + (pm.rainReq !== null ? kpi('雨水貯留', `${fmt(num('rainCap'))} / ${fmt(pm.rainReq)} m³`, pm.rainTxt + ' ' + badge(num('rainCap') >= pm.rainReq)) : '');
+}
+function renderLaws() {
+  $('lawTitle').textContent = `${city.name} 綠化相關法規全文摘要（${city.laws.length} 項）`;
+  $('lawList').innerHTML = city.laws.map(l => `<h3>${l.title} <span class="note">（${l.ver || '版本未註'}）</span></h3>` + l.items.map(i => `<div class="law"><span class="a">${i.art}</span>${i.text}${i.verified ? '' : '<span class="uv">未查證</span>'}</div>`).join('') + `<a class="src" href="${l.src}" target="_blank">${l.src}</a>`).join('');
+}
+
+// ---------- checklist ----------
+function hash(s) { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h.toString(36); }
+function autoVal(item) {
+  const c = R.cover || {}, t = R.tco || {}, w = R.water || {};
+  if (item.includes('300 m²')) return `A₀ ${fmt(num('A0'))} m²`;
+  if (item.startsWith('確認是否達都審門檻')) return R.udr ? (R.udr.hit === null ? '依指定地區' : R.udr.hit ? '可能須送審' : '未達門檻') : '';
+  if (item.startsWith('確認基地綠化類別')) return cls().label;
+  if (item.startsWith('最小綠化面積')) return `A′ ${fmt(t.Amin)} m²`;
+  if (item.startsWith('TCO2 >')) return t.apply ? `${fmt(t.tco2, 1)} / ${fmt(t.tco2c, 1)} ${badge(t.ok)}` : '免檢討';
+  if (item.startsWith('α 係數')) return `ra ${num('ra')} → α ${t.alpha?.toFixed(2)}`;
+  if (item.startsWith('喬木樹冠投影')) return `Ai ${t.Ai} m²`;
+  if (item.startsWith('綠覆率分母')) return `${fmt(c.denom)} m²`;
+  if (item.startsWith('喬木每株綠覆')) return `綠覆率 ${pct(c.coverRatio)} ${badge(c.coverRatio >= c.coverReq)}`;
+  if (item.startsWith('喬木株數是否達')) return c.reqTrees !== null ? `${c.treeCount} / ${c.reqTrees} ${badge(c.treeCount >= c.reqTrees)}` : `${c.treeCount} 株（未訂）`;
+  if (item.startsWith('喬木規格')) return c.treeFlags?.length ? `<span class="ng">${c.treeFlags.length} 項提醒</span>` : '<span class="ok">✓</span>';
+  if (item.startsWith('屋頂綠化比例')) return c.roofReq !== null && c.roofReq !== undefined ? `${fmt(c.roofAct)} / ${fmt(c.roofReq)} ${badge(c.roofAct >= c.roofReq)}` : '未強制';
+  if (item.startsWith('地面層覆土') || item.startsWith('人工地盤／屋頂覆土')) return c.flags?.filter(f => f.includes('覆土')).length ? `<span class="ng">${c.flags.filter(f => f.includes('覆土')).join('；')}</span>` : '<span class="ok">✓</span>';
+  if (item.startsWith('λ =')) return w.apply ? `λ ${w.lam?.toFixed(3)} / λc ${w.lc?.toFixed(3)} ${badge(w.ok)}` : '免檢討';
+  if (item.startsWith('透水鋪面比例')) return badge(R.perm?.permOK);
+  if (item.startsWith('雨水貯留')) return R.perm?.rainReq != null ? `需 ${fmt(R.perm.rainReq)} m³` : '—';
+  return '';
+}
+function renderChecklist() {
+  const tb = $('clTbl').querySelector('tbody'); tb.innerHTML = '';
+  DATA.checklist.forEach(g => {
+    const tr = document.createElement('tr'); tr.innerHTML = `<td class="cl-cat" colspan="4">${g.cat}</td>`; tb.appendChild(tr);
+    g.items.forEach(it => { const id = 'cl_' + hash(it), st = state.cl[id] || {}; const tr = document.createElement('tr'); tr.innerHTML = `<td>${it}</td><td class="auto" data-item="${encodeURIComponent(it)}"></td><td><select data-id="${id}" data-k="s"><option value="">—</option><option>符合</option><option>不符合</option><option>不適用</option><option>待補件</option></select></td><td><input data-id="${id}" data-k="c" value="${st.c || ''}" placeholder="意見／頁次"></td>`; tr.querySelector('select').value = st.s || ''; tr.querySelectorAll('select,input').forEach(el => el.addEventListener('input', () => { state.cl[id] = state.cl[id] || {}; state.cl[id][el.dataset.k] = el.value; clStat(); save(); })); tb.appendChild(tr); });
+  });
+}
+function updateChecklist() { document.querySelectorAll('#clTbl .auto').forEach(td => td.innerHTML = autoVal(decodeURIComponent(td.dataset.item))); clStat(); }
+function clStat() { const v = Object.values(state.cl).map(x => x.s).filter(Boolean); const cnt = s => v.filter(x => x === s).length; $('clStat').textContent = `符合 ${cnt('符合')}｜不符合 ${cnt('不符合')}｜不適用 ${cnt('不適用')}｜待補件 ${cnt('待補件')}`; }
+function setAll(v) { document.querySelectorAll('#clTbl select').forEach(s => { s.value = v; state.cl[s.dataset.id] = state.cl[s.dataset.id] || {}; state.cl[s.dataset.id].s = v; }); clStat(); save(); }
+
+// ---------- converters ----------
+function convCalc() {
+  const s = num('sc_s'), a = num('sc_l') * num('sc_w'), real = a * s * s / 10000, den = num('d_den'), q = num('d_area') * den;
+  const n = (Math.floor(num('t_len') / num('t_sp')) + 1) * num('t_rows'), vol = num('s_area') * num('s_depth') / 100;
+  $('convRes').innerHTML = kpi('圖面實際面積', fmt(real, 2) + ' m²', `${fmt(num('sc_l') * s / 100, 2)} × ${fmt(num('sc_w') * s / 100, 2)} m`) + kpi('灌木株數', `${fmt(q, 0)} 株（採購 ${Math.ceil(q * (1 + num('d_loss') / 100))}）`, `${den} 株/m²`) + kpi('帶狀可植喬木', n + ' 株', `(⌊L/株距⌋+1) × 排數；株距² = ${fmt(num('t_sp') ** 2)} m²`) + kpi('覆土體積／重量', `${fmt(vol, 2)} m³／${fmt(vol * num('s_uw'), 2)} t`, '飽和水時更重，結構載重另計');
+}
+
+// ---------- persistence / update ----------
+const FIELDS = ['p_name', 'p_owner', 'A0', 'r', 'bArea', 'gfa', 'floors', 'height', 'zone', 'aiSel', 'units', 'slope', 'nonGreen', 'roofBase', 'pave', 'setbackArea', 'shrub', 'shrubDen', 'ground', 'paver', 'pond', 'swale', 'roofGreen', 'vert', 'roofShrub', 'soilShrub', 'soilGround', 'soilRoof', 'Ap', 'ra', 'eco', 'vine', 'thin', 'fSel', 'fCustom', 'A1', 'A2', 'h2', 'q2vent', 'V3', 'A4', 'V4', 'A5', 'V5', 'n7', 'permArea', 'permTotal', 'walk', 'walkPerm', 'rainCap', 'excav', 'reviewSummary'];
+function snapshot() { const f = {}; FIELDS.forEach(k => f[k] = $(k).value); return { ...state, fields: f, dataVersion: DATA.meta.version }; }
+function save() { try { localStorage.setItem('udrGreen', JSON.stringify(snapshot())); } catch (e) { } }
+function load() { try { const s = JSON.parse(localStorage.getItem('udrGreen')); if (s) applyState(s); } catch (e) { } }
+function applyState(s) { const f = s.fields; delete s.fields; state = { ...state, ...s }; if (f) FIELDS.forEach(k => { if (f[k] !== undefined) $(k).value = f[k]; }); }
+function exportJSON() { const b = new Blob([JSON.stringify(snapshot(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = ($('p_name').value || 'udr-project') + '.json'; a.click(); }
+function importJSON(inp) { const f = inp.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { try { applyState(JSON.parse(rd.result)); if (state.city) selectCity(state.city, true); if (state.caseType) selectCase(state.caseType, true); renderTrees(); renderChecklist(); setMode(state.mode); go(4); } catch (e) { alert('匯入失敗'); } }; rd.readAsText(f); }
+function openSettings() { $('dlgVer').textContent = `${BUILTIN.meta.version}（${BUILTIN.meta.date}）`; $('dlgCur').textContent = `${DATA.meta.version}（${DATA.meta.date}）`; try { $('updUrl').value = localStorage.getItem('updUrl') || DATA.meta.updateUrl || ''; } catch (e) { } $('updMsg').textContent = ''; $('dlg').showModal(); }
+function validLaws(d) { return d && d.meta && d.meta.version && Array.isArray(d.cities) && d.national && d.checklist; }
+function applyLaws(d, how) { if (!validLaws(d)) { $('updMsg').innerHTML = '<span class="ng">檔案格式不符（需含 meta、national、cities、checklist）</span>'; return; } try { localStorage.setItem('lawsOverride', JSON.stringify(d)); } catch (e) { } $('updMsg').innerHTML = `<span class="ok">已套用 ${d.meta.version}（${d.meta.date}）${how}，重新載入頁面生效。</span>`; setTimeout(() => location.reload(), 900); }
+async function checkUpdate() { const u = $('updUrl').value.trim(); if (!u) { $('updMsg').textContent = '請先填寫網址'; return; } try { localStorage.setItem('updUrl', u); } catch (e) { } $('updMsg').textContent = '下載中…'; try { const r = await fetch(u, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); const d = await r.json(); if (!validLaws(d)) throw new Error('格式不符'); if (d.meta.version === DATA.meta.version && d.meta.date === DATA.meta.date) { $('updMsg').innerHTML = `<span class="ok">已是最新版本 ${d.meta.version}（${d.meta.date}）</span>`; return; } applyLaws(d, '（遠端更新）'); } catch (e) { $('updMsg').innerHTML = `<span class="ng">無法取得更新：${e.message}。請確認網址可公開存取且允許跨網域（CORS）；或改用「匯入法規 JSON 檔」。</span>`; } }
+function importLaws(inp) { const f = inp.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { try { applyLaws(JSON.parse(rd.result), '（手動匯入）'); } catch (e) { $('updMsg').innerHTML = '<span class="ng">JSON 解析失敗</span>'; } }; rd.readAsText(f); }
+function exportLaws() { const b = new Blob([JSON.stringify(DATA, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `laws-${DATA.meta.version}.json`; a.click(); }
+function resetLaws() { try { localStorage.removeItem('lawsOverride'); } catch (e) { } location.reload(); }
+init();
+if (location.protocol.startsWith('http') && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });
+</script>
+</body>
+</html>
