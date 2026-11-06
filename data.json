@@ -1,7 +1,7 @@
 {
  "meta": {
   "version": "2.0",
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "disclaimer": "本工具所載數值係依各縣市法規系統、都發／建設處公開文件及全國法規資料庫整理（資料日期見版本）。標示「未查證」者表示未能取得原文；標示「假設值」者為本工具採近似值。設計送審與審查意見仍應以各縣市法規系統現行條文、細部計畫土管要點、當期都審通案決議及審議會意見為準；本工具不構成法律意見。",
   "updateUrl": "https://raw.githubusercontent.com/HaSunM/udr-greening-checker/main/laws-latest.json"
  },
